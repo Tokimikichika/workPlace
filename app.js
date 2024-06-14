@@ -8,7 +8,6 @@ const bcrypt = require('bcrypt');
 
 const app = express();
 
-// Подключение к базе данных
 const pool = mysql.createPool({
     host: 'localhost',
     user: 'myuser',
@@ -34,17 +33,12 @@ app.use(session({
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Статические файлы
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Роуты
-
-// Главная страница с формой авторизации
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '/login.html'));
 });
 
-// Авторизация пользователя
 app.post('/auth', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -91,7 +85,6 @@ app.post('/auth', (req, res) => {
     }
 });
 
-// Домашняя страница пользователя
 app.get('/home', (req, res) => {
     if (req.session.loggedin) {
         pool.query('SELECT * FROM Clients WHERE ResponsiblePerson = ?', [req.session.fullname], (err, results, fields) => {
@@ -107,7 +100,6 @@ app.get('/home', (req, res) => {
     }
 });
 
-// Обновление статуса клиента
 app.post('/update_status', (req, res) => {
     if (req.session.loggedin) {
         const accountNumber = req.body.account_number;
@@ -128,18 +120,15 @@ app.post('/update_status', (req, res) => {
     }
 });
 
-// Выход из системы
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 });
 
-// Слушаем порт 4000
 app.listen(4000, () => {
     console.log('Server is running on port 4000');
 });
 
-// Function to render home page
 function renderHomePage(username, fullName, clients) {
     let clientRows = '';
     clients.forEach(client => {
